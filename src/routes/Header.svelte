@@ -8,7 +8,7 @@
 	<ul>
 		<li>
 			<RedHatLogo />
-			<strong>Consultant 360 Feedback</strong>
+			<a href="/"><strong>Consultant 360 Feedback</strong></a>
 		</li>
 	</ul>
 	<ul>
@@ -34,5 +34,6 @@
 	li strong {
 		font-size: 1.1em;
 		padding-left: 1em;
+		color: #fff;
 	}
 </style>
