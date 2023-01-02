@@ -11,9 +11,11 @@
 			<strong>Consultant 360 Feedback</strong>
 		</li>
 	</ul>
-	<!-- <ul>
-		<li><strong>C360</strong></li>
-	</ul> -->
+	<ul>
+		<li><a href="/admin">Admin</a></li>
+		<li><a href="/surveys">Surveys</a></li>
+		<li><a href="/profile">Profile</a></li>
+	</ul>
 	<ul>
 		<li><UserIcon /></li>
 	</ul>
