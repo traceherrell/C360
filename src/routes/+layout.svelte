@@ -1,9 +1,11 @@
-<script >
-    import "$lib/theme.scss"
-    import Header from "./Header.svelte";
+<script>
+	import '$lib/theme.scss';
+	import Header from './Header.svelte';
 </script>
 
-<main class="container">
-    <Header/>
-    <slot/> 
+<main>
+	<Header />
+	<div class="container">
+		<slot />
+	</div>
 </main>
