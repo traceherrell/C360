@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  postgres:
+    image: registry.redhat.io/rhel8/postgresql-13:latest
+    restart: unless-stopped
+    container_name: local_postgres
+    environment:
+      POSTGRESQL_DATABASE: consultant360
+      POSTGRESQL_USER: surveydb
+      POSTGRESQL_PASSWORD: surveydb
+      POSTGRESQL_ADMIN_PASSWORD: admin
+    ports:
+      - 5432:5432
+
+
+  keycloak:
+    command:
+      - start-dev
+      - --import-realm
+    container_name: local_keycloak
+    environment:
+      # DB_VENDOR: postgres
+      # DB_ADDR: postgres
+      # DB_DATABASE: keycloak
+      # DB_USER: admin
+      # DB_PASSWORD: admin
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_IMPORT: /keycloak/realm.json
+    image: quay.io/keycloak/keycloak:20.0.2
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+
+
