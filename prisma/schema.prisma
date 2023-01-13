@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model default_survey_skills {
+  survey_group_id String        @db.Uuid
+  skill_id        String        @db.Uuid
+  skills          skills        @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk1v9ku87x48swjjsydfdpuo1co")
+  survey_groups   survey_groups @relation(fields: [survey_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkkm8ocly5ugg2wfajrqmiel672")
+
+  @@unique([survey_group_id, skill_id], map: "uk9vfkmk3nv69wrnmj49vvpphhm")
+}
+
+model employee_assignments {
+  id                 String               @id @default(uuid()) @db.Uuid
+  billable_role      String?              @db.VarChar(255)
+  end_date           DateTime?            @db.Date
+  start_date         DateTime?            @db.Date
+  employee_id        String               @db.VarChar(255)
+  survey_group_id    String               @db.Uuid
+  survey_groups      survey_groups        @relation(fields: [survey_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkb5n884mlrjbb855jhbxeiw08x")
+  employees          employees            @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fkro2njbwlfgvoqd84sghx2pl9b")
+  survey_submissions survey_submissions[]
+
+  @@unique([employee_id, survey_group_id], map: "ukidbrpb9yo0fa3w90wb4kthwvk")
+}
+
+model employees {
+  id                    String                 @id @db.VarChar(255)
+  email                 String?                @unique(map: "ukj9xgmd0ya5jmus09o0b8pqrpb") @db.VarChar(255)
+  name                  String?                @db.VarChar(255)
+  role                  String?                @db.VarChar(255)
+  terms_version_number  Decimal?               @db.Decimal(4, 2)
+  date_terms_accepted   DateTime?              @db.Date
+  employee_assignments  employee_assignments[]
+  usage_agreement_terms usage_agreement_terms? @relation(fields: [terms_version_number], references: [version], onDelete: NoAction, onUpdate: NoAction)
+  survey_submissions    survey_submissions[]
+}
+
+model skill_rating {
+  id                   String             @id @default(uuid()) @db.Uuid
+  rating               Int?
+  skill_id             String             @db.Uuid
+  survey_submission_id String             @db.Uuid
+  skills               skills             @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkfurcx3am82bjp4dvq0lx4t5d6")
+  survey_submissions   survey_submissions @relation(fields: [survey_submission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fkm2rdu3tcdphx53b373pcglc3t")
+
+  @@unique([skill_id, survey_submission_id], map: "ukidbrpb9yo0fa3w80wb4kthwvk")
+}
+
+model skills {
+  id                    String                  @id @db.Uuid
+  active                Boolean?
+  category              String?                 @db.VarChar(255)
+  description           String?                 @db.VarChar(512)
+  skill                 String?                 @db.VarChar(255)
+  skills_base_id        Int                     @unique(map: "skills_base_id_unique_constraint")
+  default_survey_skills default_survey_skills[]
+  skill_rating          skill_rating[]
+}
+
+model survey_groups {
+  id                    String                  @id @default(uuid()) @db.Uuid
+  created_date          DateTime?               @default(now()) @db.Timestamp(6)
+  opportunity_id        String                  @db.VarChar(255)
+  project_creator_id    String                  @db.VarChar(255)
+  project_name          String                  @db.VarChar(255)
+  tsm_id                String                  @db.VarChar(255)
+  disabled              Boolean
+  created_by            String?                 @db.VarChar(255)
+  modified_by           String?                 @db.VarChar(255)
+  modified_date         DateTime?               @default(now()) @db.Timestamp(6)
+  project_code          String                  @db.VarChar(255)
+  default_survey_skills default_survey_skills[]
+  employee_assignments  employee_assignments[]
+  survey_submissions    survey_submissions[]
+
+  @@unique([opportunity_id, project_code], map: "survey_groups_unique_constraint")
+}
+
+model survey_submissions {
+  id                   String                @id @default(uuid()) @db.Uuid
+  feedback             String?               @db.VarChar(255)
+  submission_date      DateTime?             @db.Date
+  submission_status    Int?
+  survey_author_id     String?               @db.VarChar(255)
+  survey_group_id      String?               @db.Uuid
+  survey_subject_id    String?               @db.Uuid
+  disabled             Boolean
+  creation_date        DateTime?             @default(now()) @db.Timestamp(6)
+  last_reminder_date   DateTime?             @default(now()) @db.Timestamp(6)
+  reminder_count       Int?
+  skill_rating         skill_rating[]
+  employees            employees?            @relation(fields: [survey_author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkddsokyu6s43in6k01o4f3aw7l")
+  survey_groups        survey_groups?        @relation(fields: [survey_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkmrkf9r83317f2tfbmicvbsfqp")
+  employee_assignments employee_assignments? @relation(fields: [survey_subject_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fkrnf3peoqtqbrcdafxe20j9br2")
+
+  @@unique([survey_group_id, survey_author_id, survey_subject_id], map: "ukp517gi8y7vshq51ucaejgrqwc")
+}
+
+model usage_agreement_terms {
+  version    Decimal     @id(map: "usage_agreement_terms_version_pkey") @db.Decimal(4, 2)
+  text       String
+  start_date DateTime    @db.Date
+  end_date   DateTime?   @db.Date
+  employees  employees[]
+}
