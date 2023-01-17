@@ -1,7 +1,7 @@
 <script>
 	import { signIn, signOut } from '@auth/sveltekit/client';
 	import { page } from '$app/stores';
-	const assignments = $page.data.employee.employee_assignments;
+	const assignments = $page.data.employee?.employee_assignments || [];
 </script>
 
 <h1>Surveys</h1>
